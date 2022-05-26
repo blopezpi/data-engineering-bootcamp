@@ -1,0 +1,33 @@
+SELECT COUNT(*) 
+FROM yellow_trip_data 
+WHERE tpep_pickup_datetime BETWEEN '2021-01-15 00:00:00' AND '2021-01-15 23:59:59';
+
+
+SELECT DATE_TRUNC('day', tpep_pickup_datetime)
+FROM yellow_trip_data
+WHERE tip_amount=(SELECT MAX(tip_amount) FROM yellow_trip_data)
+
+
+SELECT COALESCE(zdo."Zone", 'Unknown'), COUNT(*) as "how"
+FROM yellow_trip_data t
+JOIN zones zpu ON 
+t."PULocationID" = zpu."LocationID"
+JOIN zones zdo ON 
+t."DOLocationID" = zdo."LocationID" 
+WHERE zpu."Zone" = 'Central Park' AND
+t."tpep_pickup_datetime" BETWEEN '2021-01-14 00:00:00' AND '2021-01-14 23:59:59'
+GROUP BY zdo."Zone"
+ORDER BY "how" DESC
+LIMIT 1;
+
+
+SELECT CONCAT(COALESCE(zpu."Zone", 'Unknown'), '/', COALESCE(zdo."Zone", 'Unknown')) AS "travel",
+    AVG(total_amount) as average
+FROM yellow_trip_data t
+JOIN zones zpu ON 
+t."PULocationID" = zpu."LocationID"
+JOIN zones zdo ON 
+t."DOLocationID" = zdo."LocationID" 
+GROUP BY travel
+ORDER BY average DESC
+LIMIT 1;
